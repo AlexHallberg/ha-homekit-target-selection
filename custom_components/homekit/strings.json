@@ -1,0 +1,126 @@
+{
+  "config": {
+    "abort": {
+      "port_name_in_use": "An accessory or bridge with the same name or port is already configured."
+    },
+    "step": {
+      "include": {
+        "data": {
+          "exclude_targets": "Exclude",
+          "include_targets": "Also include"
+        },
+        "description": "Include or exclude additional targets. More specific selections override less specific ones. When selections are equally specific, exclusions win.",
+        "title": "Refine entity selection"
+      },
+      "pairing": {
+        "description": "Home Assistant will create a bridge and a separate HomeKit accessory for each selected camera, lock, TV, receiver, projector, or activity-based remote. Pair each one using the instructions in “Notifications” under “HomeKit Pairing”.",
+        "title": "Pair HomeKit"
+      },
+      "review": {
+        "data": {
+          "entities": "Entities shared with HomeKit"
+        },
+        "description": "HomeKit will expose the following {count} entities:",
+        "title": "Review shared entities"
+      },
+      "user": {
+        "data": {
+          "include_domains": "Domains to include"
+        },
+        "description": "Choose the domains to include in HomeKit.",
+        "title": "Choose domains to include"
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "accessory": {
+        "data": {
+          "entities": "Entity"
+        },
+        "title": "Select the entity for the accessory"
+      },
+      "bridged_device_triggers": {
+        "data": {
+          "devices": "Devices (Triggers)"
+        },
+        "description": "Programmable switches are created for each selected device. When a device trigger fires, HomeKit can be configured to run an automation or scene.",
+        "title": "Bridged device triggers"
+      },
+      "cameras": {
+        "data": {
+          "camera_audio": "Cameras that support audio",
+          "camera_copy": "Cameras that support native H.264 streams"
+        },
+        "description": "Check all cameras that support native H.264 streams. If the camera does not output a H.264 stream, the system will transcode the video to H.264 for HomeKit. Transcoding requires a performant CPU and is unlikely to work on single-board computers.",
+        "title": "Camera configuration"
+      },
+      "climate": {
+        "description": "Choose which accessory each climate entity uses in HomeKit. Heater Cooler puts the mode, temperature, and the supported fan speed and swing controls on one air conditioner style tile; Thermostat is the classic temperature dial with a separate fan. Automatic keeps the accessory the entity already uses and picks the best fit when it is bridged for the first time. Changing the accessory type keeps the room and name, but HomeKit scenes or automations that used the old controls may need to be recreated.",
+        "title": "Climate accessory configuration"
+      },
+      "include": {
+        "data": {
+          "exclude_targets": "[%key:component::homekit::config::step::include::data::exclude_targets%]",
+          "include_targets": "[%key:component::homekit::config::step::include::data::include_targets%]"
+        },
+        "description": "[%key:component::homekit::config::step::include::description%]",
+        "title": "[%key:component::homekit::config::step::include::title%]"
+      },
+      "init": {
+        "data": {
+          "domains": "[%key:component::homekit::config::step::user::data::include_domains%]",
+          "mode": "HomeKit mode"
+        },
+        "description": "Choose Bridge to share several entities, or Accessory to share one. Cameras, locks, TVs, receivers, projectors, and activity-based remotes require Accessory mode. Choose the domains to include in HomeKit.",
+        "title": "Choose mode and domains"
+      },
+      "review": {
+        "data": {
+          "entities": "[%key:component::homekit::config::step::review::data::entities%]"
+        },
+        "description": "[%key:component::homekit::config::step::review::description%]",
+        "title": "[%key:component::homekit::config::step::review::title%]"
+      },
+      "yaml": {
+        "description": "This entry is controlled via YAML",
+        "title": "Adjust HomeKit options"
+      }
+    }
+  },
+  "selector": {
+    "climate_accessory_type": {
+      "options": {
+        "automatic": "Automatic",
+        "heater_cooler": "Heater Cooler",
+        "thermostat": "Thermostat"
+      }
+    }
+  },
+  "services": {
+    "reload": {
+      "description": "Reloads HomeKit and re-processes the YAML-configuration.",
+      "name": "[%key:common::action::reload%]"
+    },
+    "reset_accessory": {
+      "description": "Resets a HomeKit accessory.",
+      "fields": {
+        "entity_id": {
+          "description": "Entity to reset.",
+          "name": "Entity"
+        }
+      },
+      "name": "Reset accessory"
+    },
+    "unpair": {
+      "description": "Forcefully removes all pairings from an accessory to allow re-pairing. Use this action if the accessory is no longer responsive and you want to avoid deleting and re-adding the entry. Room locations and accessory preferences will be lost.",
+      "fields": {
+        "device_id": {
+          "description": "Device to unpair.",
+          "name": "Device"
+        }
+      },
+      "name": "Unpair an accessory or bridge"
+    }
+  }
+}
