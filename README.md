@@ -37,6 +37,15 @@ homekit:
 - Adding or removing the label, or moving things between areas, reloads the bridge automatically.
 - Not shown in the UI config flow; set it in YAML.
 
+## Extra in this repo: renames sync to HomeKit
+
+When an entity's name changes in Home Assistant (for example after renaming a light in the Hue app), its HomeKit
+accessory is rebuilt with the new name, so the Home app follows without a manual reload. The accessory keeps its
+HomeKit ID, so rooms, scenes and automations in the Home app are not affected.
+
+Entities with a `name:` in `entity_config` keep that fixed name. Remove the override if you want the name to follow
+Home Assistant.
+
 ## Install
 
 > ⚠️ This **overrides the built-in `homekit` integration** for all your bridges. Take a backup first.

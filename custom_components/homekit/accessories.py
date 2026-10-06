@@ -58,6 +58,7 @@ from homeassistant.const import (
     ATTR_BATTERY_CHARGING,
     ATTR_BATTERY_LEVEL,
     ATTR_ENTITY_ID,
+    ATTR_FRIENDLY_NAME,
     ATTR_HW_VERSION,
     ATTR_MANUFACTURER,
     ATTR_MODEL,
@@ -490,6 +491,10 @@ class HomeAccessory(Accessory):  # type: ignore[misc]
         )
         self._reload_on_change_attrs: list[str] = list(RELOAD_ON_CHANGE_ATTRS)
         self.config = config or {}
+        # Rebuild the accessory on rename so HomeKit picks up the new name,
+        # unless the name is pinned in entity_config
+        if CONF_NAME not in self.config:
+            self._reload_on_change_attrs.append(ATTR_FRIENDLY_NAME)
         if device_id:
             self.device_id: str | None = device_id
             serial_number = device_id
