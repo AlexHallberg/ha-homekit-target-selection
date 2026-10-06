@@ -13,6 +13,30 @@ All credit goes to the PR author and the HomeKit integration maintainers.
 - A **review step** listing exactly which entities will be exposed before you save.
 - Existing entity include/exclude selections are carried over when editing a bridge.
 
+## Extra in this repo: `require_targets` (YAML only)
+
+The PR's rules are either/or: an area include exposes *everything* in the area. `require_targets` adds an **and**:
+an entity must also match at least one of these targets to be exposed. This makes "one bridge per area, only things
+labelled HomeKit" possible:
+
+```yaml
+homekit:
+  - name: HA Living Room Bridge
+    port: 21063
+    filter:
+      include_targets:
+        area_id: living_room
+      require_targets:
+        label_id: homekit
+```
+
+- A label on the **device** counts too, so labelling a Hue bulb's device is enough.
+- It applies to every rule, including `include_entities`, so everything you expose carries the label and
+  *Settings → Labels → HomeKit* lists all of it.
+- Used on its own (no include rules), it exposes everything with the label.
+- Adding or removing the label, or moving things between areas, reloads the bridge automatically.
+- Not shown in the UI config flow; set it in YAML.
+
 ## Install
 
 > ⚠️ This **overrides the built-in `homekit` integration** for all your bridges. Take a backup first.

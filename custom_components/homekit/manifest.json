@@ -29,6 +29,6 @@
   "zeroconf": [
     "_homekit._tcp.local."
   ],
-  "version": "2026.9.0-pr180269",
+  "version": "2026.9.0-pr180269.1",
   "issue_tracker": "https://github.com/home-assistant/core/pull/180269"
 }

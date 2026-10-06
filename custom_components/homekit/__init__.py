@@ -132,6 +132,7 @@ from .const import (
     CONF_LINKED_MOTION_SENSOR,
     CONF_LINKED_PM25_SENSOR,
     CONF_LINKED_TEMPERATURE_SENSOR,
+    CONF_REQUIRE_TARGETS,
     CONFIG_OPTIONS,
     DEFAULT_EXCLUDE_ACCESSORY_MODE,
     DEFAULT_HOMEKIT_MODE,
@@ -216,6 +217,8 @@ HOMEKIT_FILTER_SCHEMA = vol.Schema(
         **BASE_FILTER_SCHEMA.schema,
         vol.Optional(CONF_INCLUDE_TARGETS, default={}): vol.Schema(cv.TARGET_FIELDS),
         vol.Optional(CONF_EXCLUDE_TARGETS, default={}): vol.Schema(cv.TARGET_FIELDS),
+        # Entities must also match one of these targets to be included
+        vol.Optional(CONF_REQUIRE_TARGETS, default={}): vol.Schema(cv.TARGET_FIELDS),
     }
 )
 
@@ -426,6 +429,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: HomeKitConfigEntry) -> b
         entry.entry_id,
         entry.title,
         devices=devices,
+        require_targets=filter_config[CONF_REQUIRE_TARGETS],
     )
 
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))
@@ -435,7 +439,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: HomeKitConfigEntry) -> b
 
     include_targets = filter_config[CONF_INCLUDE_TARGETS]
     exclude_targets = filter_config[CONF_EXCLUDE_TARGETS]
-    if include_targets or exclude_targets:
+    require_targets = filter_config[CONF_REQUIRE_TARGETS]
+    if include_targets or exclude_targets or require_targets:
         reload_scheduled = False
 
         @callback
@@ -447,7 +452,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: HomeKitConfigEntry) -> b
             reload_scheduled = True
             hass.config_entries.async_schedule_reload(entry.entry_id)
 
-        for targets in (include_targets, exclude_targets):
+        for targets in (include_targets, exclude_targets, require_targets):
             for target_type, target_ids in targets.items():
                 if not target_ids:
                     continue
@@ -634,6 +639,7 @@ class HomeKit:
         entry_id: str,
         entry_title: str,
         devices: list[str] | None = None,
+        require_targets: ConfigType | None = None,
     ) -> None:
         """Initialize a HomeKit object."""
         self.hass = hass
@@ -651,6 +657,7 @@ class HomeKit:
         self._homekit_mode = homekit_mode
         self._include_targets = include_targets
         self._exclude_targets = exclude_targets
+        self._require_targets = require_targets or {}
         self._include_target_selection = TargetSelection(include_targets)
         self._devices = devices or []
         self.aid_storage: AccessoryAidStorage | None = None
@@ -973,6 +980,13 @@ class HomeKit:
             self._exclude_targets,
             entity_filter=target_entity_filter,
         )
+        required_entity_ids: set[str] | None = None
+        if any(self._require_targets.values()):
+            required_entity_ids = set().union(
+                *async_target_entity_ids_by_type(
+                    self.hass, self._require_targets
+                ).values()
+            )
         has_include_rules = bool(
             any(
                 self._filter.config[key]
@@ -992,6 +1006,11 @@ class HomeKit:
                 targeted_included_entity_ids,
                 targeted_excluded_entity_ids,
                 has_include_rules,
+            ):
+                continue
+            if (
+                required_entity_ids is not None
+                and entity_id not in required_entity_ids
             ):
                 continue
 
